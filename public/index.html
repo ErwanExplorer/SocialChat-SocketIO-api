@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - SocketIO</title>
+    <link rel="stylesheet" href="styles/chat.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/">Accueil</a>
+            <a href="/admin.html">Panel Admin</a>
+        </div>
+        <div class="login-admin">
+            <a href="/login">Se connecter</a>
+        </div>
+  </nav>
+
+    <h1>Chat</h1>
+    <div class="container">
+      <div class="video">
+        <video src="http://localhost:8000/api/video?video=video.mp4&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o" 
+        width="400" height="300" controls></video>
+        <h2 class="alert">
+            <strong>Attention !</strong> 
+            Vous devez être connecté pour pouvoir regarder la vidéo.
+        </h2>
+      </div>
+
+      <div class="chat">
+            <div id="messages" class="messages"></div>
+            <form action="">
+                <input type="text" id="name" placeholder="Entrer votre nom">
+                <input type="text" id="msg" placeholder="Entrer votre message">
+                <button type="submit" class="send">Envoyer</button>
+            </form>
+            <div id="erreur"></div>
+        </div>
+    </div>
+
+    <footer>
+        <h2>© 2023 - Chat - SocketIO</h2>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
+    <script>
+        fetch('http://localhost:3000/api/admin')
+        .then(response => response.json())
+        .then(messages => {
+          const messagesDiv = document.getElementById('messages');
+          messages.forEach(message => {
+            messagesDiv.innerHTML += `<h2 class="name">${message.name} </h2> <p class="msg">${message.message}</p> <p class="date">${message.DateMessage}</p>`;
+          });
+        });
+
+        const socket = io();
+        window.onload = function() {
+            const messages = document.querySelector('.messages');
+            messages.scrollTop = messages.scrollHeight;
+
+            document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.querySelector('#name').value;
+                const message = document.querySelector('#msg').value;
+                const now = new Date();
+                const DateMessage = now.toLocaleString();
+
+                if (!name || !message) {
+                    //alert("Veuillez entrer un nom et un message");
+                     const erreur = document.querySelector('#erreur');
+                     erreur.classList.add('message');
+                     erreur.innerHTML = `<h2 class="erreur">Veuillez entrer un nom et un message</h2>`;
+                     erreur.appendChild(erreur);
+                } else {
+                    socket.emit('chat_message', { name, message, DateMessage });
+                    erreur.innerHTML = "";
+                }
+            });
+
+            socket.on('chat_message', function(data) {
+                const messages = document.querySelector('#messages');
+                const message = document.createElement('div');
+                message.classList.add('message');
+                const now = new Date();
+                message.innerHTML = `<h2 class="name">${data.name}</h2><p class="msg">${data.message}</p> <p class="date">${now.toLocaleString()}</p>`;
+                messages.appendChild(message);
+            });
+        }
+    </script>
+
+</body>
+</html>

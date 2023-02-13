@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Panel Admin</title>
+    <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+          <a href="/">Accueil</a>
+          <a href="/admin.html">Panel Admin</a>
+        </div>
+        <div class="login-admin">
+          <a href="/login">Se connecter</a>
+        </div>
+  </nav>
+
+    <h1>Panel Admin - Chat</h1>
+    <h2>Voir l'historisque des messages :</h2>
+     <div id="messages"></div>
+
+     <footer>
+        <h2>© 2023 - Chat - SocketIO</h2>
+    </footer>
+
+     <script>
+      fetch('http://localhost:3000/api/admin')
+          .then(response => response.json())
+          .then(messages => {
+          const messagesDiv = document.getElementById('messages');
+          messages.forEach(message => {
+          messagesDiv.innerHTML += `<p><strong>${message.name}:</strong> ${message.message} -- ${message.DateMessage}</p>`;
+          });
+        });
+    </script>
+</body>
+</html>
